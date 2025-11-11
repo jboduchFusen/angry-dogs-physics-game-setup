@@ -1,110 +1,72 @@
 
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import { usePhysicsGame } from '@/hooks/usePhysicsGame';
+import { Button } from '@/components/ui/button';
+import { RotateCcw } from 'lucide-react';
 
 export default function GameCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = 800;
-    canvas.height = 400;
-
-    // Draw sky
-    const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    skyGradient.addColorStop(0, '#87CEEB');
-    skyGradient.addColorStop(1, '#87CEEB99');
-    ctx.fillStyle = skyGradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw ground
-    const groundGradient = ctx.createLinearGradient(0, canvas.height - 100, 0, canvas.height);
-    groundGradient.addColorStop(0, '#8B4513CC');
-    groundGradient.addColorStop(1, '#8B4513');
-    ctx.fillStyle = groundGradient;
-    ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
-
-    // Draw slingshot
-    ctx.strokeStyle = '#654321';
-    ctx.lineWidth = 8;
-    ctx.beginPath();
-    ctx.moveTo(100, canvas.height - 100);
-    ctx.lineTo(100, canvas.height - 200);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(80, canvas.height - 180);
-    ctx.lineTo(100, canvas.height - 200);
-    ctx.lineTo(120, canvas.height - 180);
-    ctx.stroke();
-
-    // Draw placeholder dog
-    ctx.fillStyle = '#8B4513';
-    ctx.beginPath();
-    ctx.arc(100, canvas.height - 120, 20, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw eyes
-    ctx.fillStyle = '#FFFFFF';
-    ctx.beginPath();
-    ctx.arc(95, canvas.height - 125, 5, 0, Math.PI * 2);
-    ctx.arc(105, canvas.height - 125, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = '#000000';
-    ctx.beginPath();
-    ctx.arc(95, canvas.height - 125, 2, 0, Math.PI * 2);
-    ctx.arc(105, canvas.height - 125, 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw placeholder structures (targets)
-    const drawBox = (x: number, y: number, width: number, height: number, color: string) => {
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, width, height);
-      ctx.strokeStyle = '#000000';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x, y, width, height);
-    };
-
-    // Structure 1
-    drawBox(600, canvas.height - 150, 60, 50, '#90EE90');
-    drawBox(610, canvas.height - 200, 40, 50, '#FF6B6B');
-
-    // Structure 2
-    drawBox(500, canvas.height - 150, 60, 50, '#90EE90');
-    drawBox(510, canvas.height - 200, 40, 50, '#FF6B6B');
-
-    // Draw enemy cat placeholder
-    ctx.fillStyle = '#FF6B6B';
-    ctx.beginPath();
-    ctx.arc(630, canvas.height - 170, 15, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Cat ears
-    ctx.beginPath();
-    ctx.moveTo(620, canvas.height - 180);
-    ctx.lineTo(615, canvas.height - 190);
-    ctx.lineTo(625, canvas.height - 185);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(640, canvas.height - 180);
-    ctx.lineTo(645, canvas.height - 190);
-    ctx.lineTo(635, canvas.height - 185);
-    ctx.fill();
-
-  }, []);
+  const { gameState, handleMouseDown, handleMouseMove, handleMouseUp, resetLevel } = usePhysicsGame(canvasRef);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="w-full h-auto bg-transparent"
-      style={{ imageRendering: 'crisp-edges' }}
-    />
+    <div className="relative">
+      <canvas
+        ref={canvasRef}
+        width={800}
+        height={400}
+        className="w-full h-auto bg-transparent cursor-crosshair"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        style={{ imageRendering: 'crisp-edges' }}
+      />
+      
+      {/* Game UI Overlay */}
+      <div className="absolute top-4 left-4 bg-card/90 backdrop-blur rounded-lg p-3 shadow-lg">
+        <div className="space-y-1 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground">Dogs:</span>
+            <span className="text-primary font-bold">{gameState.projectileCount}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground">Enemies:</span>
+            <span className="text-destructive font-bold">{gameState.enemiesRemaining}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-foreground">Score:</span>
+            <span className="text-accent font-bold">{gameState.score}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="absolute top-4 right-4">
+        <Button size="sm" variant="outline" onClick={resetLevel}>
+          <RotateCcw className="w-4 h-4 mr-1" />
+          Reset
+        </Button>
+      </div>
+
+      {/* Victory/Defeat Messages */}
+      {gameState.enemiesRemaining === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur">
+          <div className="bg-card p-8 rounded-lg shadow-2xl text-center space-y-4">
+            <h2 className="text-4xl font-bold text-success">Victory! 🎉</h2>
+            <p className="text-xl text-muted-foreground">Score: {gameState.score}</p>
+            <Button onClick={resetLevel}>Play Again</Button>
+          </div>
+        </div>
+      )}
+
+      {gameState.projectileCount === 0 && gameState.enemiesRemaining > 0 && gameState.isLaunched && (
+        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur">
+          <div className="bg-card p-8 rounded-lg shadow-2xl text-center space-y-4">
+            <h2 className="text-4xl font-bold text-destructive">Game Over</h2>
+            <p className="text-xl text-muted-foreground">Score: {gameState.score}</p>
+            <Button onClick={resetLevel}>Try Again</Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
