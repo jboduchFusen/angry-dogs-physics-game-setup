@@ -32,11 +32,30 @@
 - Combo scoring system
 
 ### Dog Types
-1. **Standard Dog** - Balanced projectile, no special ability
-2. **Speed Dog** - Fast and light, penetrates structures
-3. **Splitter Dog** - Splits into 3 smaller dogs mid-flight
-4. **Bomber Dog** - Explodes on impact with area damage
-5. **Heavy Dog** - Massive weight, destroys everything in path
+1. **Standard Dog** (Brown) - Balanced projectile, no special ability
+   - Radius: 20px
+   - Density: 0.004
+   - Ability: None (baseline)
+   
+2. **Speed Dog** (Blue) - Fast and light, penetrates structures
+   - Radius: 18px
+   - Density: 0.003
+   - Ability: Speed boost on activation (2x velocity)
+   
+3. **Splitter Dog** (Yellow) - Splits into 3 smaller dogs mid-flight
+   - Radius: 20px
+   - Density: 0.004
+   - Ability: Split into 3 projectiles (radius 12px each)
+   
+4. **Bomber Dog** (Black) - Explodes on impact with area damage
+   - Radius: 22px
+   - Density: 0.005
+   - Ability: Explosion with radial force (radius 100px, force 0.02)
+   
+5. **Heavy Dog** (Gray) - Massive weight, destroys everything in path
+   - Radius: 25px
+   - Density: 0.008
+   - Ability: Increase density by 2x on activation
 
 ### Level Structure
 - 15 levels across 3 worlds (5 levels each)
@@ -92,29 +111,55 @@
 - src/pages/GamePage.tsx (complete redesign)
 - src/pages/LevelsPage.tsx (complete redesign)
 
-### 🔲 Task 3: Dog Types & Abilities System
+### 🔄 Task 3: Dog Types & Abilities System (IN PROGRESS)
 **Cost Estimate:** 600 LOC × 10 = 6,000 tokens
-**Execution:** Multi-pass (types → abilities → rendering)
+**Execution:** Multi-pass (types → abilities → rendering → integration)
 
 **Subtasks:**
-- Create DogType enum and configuration system
-- Extend PhysicsEngine to support dog variants with custom properties
-- Implement ability activation system (click/tap during flight)
-- Build dog-specific rendering functions with visual distinctions
-- Add ability effects:
-  - Speed boost for Speed Dog
-  - Split mechanic for Splitter Dog (create 3 smaller bodies)
-  - Explosion radius for Bomber Dog (apply radial force)
-  - Increased mass/force for Heavy Dog
-- Update game state to track current dog type
-- Create dog selection UI for levels
 
-**Files to Create/Modify:**
-- src/types/DogTypes.ts (new - dog type definitions)
-- src/lib/physics/DogAbilities.ts (new - ability implementations)
-- src/lib/physics/PhysicsEngine.ts (extend with dog variants)
+#### 3.1: Type System & Configuration (150 LOC)
+- Create `src/types/DogTypes.ts` with DogType enum
+- Define DogConfig interface with physics properties
+- Create configuration map for all 5 dog types
+- Add ability metadata (name, description, cooldown)
+
+#### 3.2: Ability Implementation (250 LOC)
+- Create `src/lib/physics/DogAbilities.ts`
+- Implement ability functions:
+  - `activateSpeedBoost()` - Multiply velocity by 2
+  - `activateSplitter()` - Create 3 smaller bodies at angles
+  - `activateBomber()` - Apply radial force to nearby bodies
+  - `activateHeavy()` - Increase body density
+- Add ability state tracking (used/available)
+- Implement cooldown/one-time-use logic
+
+#### 3.3: Visual Rendering (150 LOC)
+- Create `src/lib/rendering/DogRenderer.ts`
+- Implement type-specific rendering:
+  - Standard: Brown with angry eyes
+  - Speed: Blue with motion lines
+  - Splitter: Yellow with split indicator
+  - Bomber: Black with fuse
+  - Heavy: Gray with weight symbol
+- Add ability activation visual effects
+- Create particle effects for abilities
+
+#### 3.4: Game Integration (50 LOC)
+- Extend PhysicsEngine.createProjectile() to accept DogType
+- Add ability activation handler in usePhysicsGame
+- Implement click/tap during flight to activate
+- Update game state to track current dog type
+- Add visual feedback for ability availability
+
+**Files to Create:**
+- src/types/DogTypes.ts (new - type definitions)
+- src/lib/physics/DogAbilities.ts (new - ability logic)
+- src/lib/rendering/DogRenderer.ts (new - visual rendering)
+
+**Files to Modify:**
+- src/lib/physics/PhysicsEngine.ts (extend createProjectile)
 - src/hooks/usePhysicsGame.ts (add ability activation)
-- src/components/game/DogRenderer.ts (new - visual rendering)
+- src/components/game/GameCanvas.tsx (integrate rendering)
 
 ### 🔲 Task 4: Level System & Data Structure
 **Cost Estimate:** 700 LOC × 10 = 7,000 tokens
@@ -232,9 +277,23 @@ Selected Matter.js for its:
 - Enemy density: 0.002 (lighter for easier destruction)
 - Ground friction: 0.8 (realistic rolling)
 
-### Material Properties
+### Dog Type Balance
+- **Standard**: Baseline for comparison, reliable
+- **Speed**: Lower density compensates for speed boost
+- **Splitter**: 3 smaller dogs = more coverage but less individual impact
+- **Bomber**: Explosion radius balanced to not be overpowered
+- **Heavy**: High density but slower, good for tough structures
+
+### Material Properties (Future)
 - **Wood**: Low density (0.001), medium friction (0.6), breaks easily
 - **Stone**: High density (0.003), high friction (0.9), very durable
 - **Glass**: Very low density (0.0005), low friction (0.3), shatters on impact
 
-### Scoring Formula
+### Ability Activation
+- Click/tap on projectile during flight to activate ability
+- Visual indicator shows when ability is available
+- One-time use per projectile
+- Some abilities (Bomber) can auto-activate on impact
+- Cooldown prevents spam (if needed for balance)
+
+### Scoring Formula (Future)
