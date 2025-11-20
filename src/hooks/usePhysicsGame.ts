@@ -140,6 +140,36 @@ export function usePhysicsGame(canvasRef: React.RefObject<HTMLCanvasElement>) {
         score: prev.score + (prev.enemiesRemaining - activeEnemies.length) * 100
       }));
     }
+
+    // Check if projectile has settled and spawn new one if turns remain
+    if (gameState.isLaunched && projectileRef.current) {
+      const velocity = Matter.Body.getVelocity(projectileRef.current);
+      const speed = Math.sqrt(velocity.x * velocity.x + velocity.y * velocity.y);
+      const angularVelocity = Math.abs(projectileRef.current.angularVelocity);
+      
+      // Projectile is settled if it's moving slowly and not rotating much
+      if (speed < 0.5 && angularVelocity < 0.01) {
+        // Remove old projectile
+        engine.removeBody(projectileRef.current);
+        projectileRef.current = null;
+
+        // Spawn new projectile if turns remain
+        if (gameState.projectileCount > 0) {
+          const newProjectile = engine.createProjectile(slingshotPosition.x, slingshotPosition.y, 20);
+          projectileRef.current = newProjectile;
+          setGameState(prev => ({
+            ...prev,
+            isLaunched: false
+          }));
+        } else {
+          // No more turns
+          setGameState(prev => ({
+            ...prev,
+            isLaunched: false
+          }));
+        }
+      }
+    }
   };
 
   const drawSlingshot = (ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) => {

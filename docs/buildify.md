@@ -21,7 +21,7 @@
 ### Game Mechanics
 - Drag and release slingshot to launch dogs
 - Physics-based collision and destruction
-- Limited projectiles per level
+- Limited projectiles per level (3 turns)
 - Score based on destruction and remaining projectiles
 - Victory when all enemies defeated
 - Defeat when projectiles exhausted
@@ -110,6 +110,19 @@
 **Files Modified:**
 - src/pages/GamePage.tsx (complete redesign)
 - src/pages/LevelsPage.tsx (complete redesign)
+
+### ✅ Task 2.6: Multi-Turn System (Completed)
+**Cost Estimate:** 50 LOC × 10 = 500 tokens
+**Execution:** Single-pass modification
+
+- Implemented automatic projectile spawning after settlement
+- Added velocity and angular velocity detection for settled state
+- Configured 3 turns per level
+- Auto-spawn new projectile when previous one stops moving
+- Remove settled projectile from physics world
+
+**Files Modified:**
+- src/hooks/usePhysicsGame.ts (added settlement detection and auto-spawn logic)
 
 ### 🔄 Task 3: Dog Types & Abilities System (IN PROGRESS)
 **Cost Estimate:** 600 LOC × 10 = 6,000 tokens
@@ -273,9 +286,19 @@ Selected Matter.js for its:
 ### Game Balance
 - Slingshot force: 0.015 (tuned for satisfying launches)
 - Max drag distance: 80px (prevents over-stretching)
-- Projectile density: 0.004 (balanced weight)
-- Enemy density: 0.002 (lighter for easier destruction)
+- Projectile density: 0.01 (increased for better impact)
+- Projectile friction: 0.3 (balanced for realistic movement)
+- Projectile restitution: 0.6 (good bounce)
+- Box density: 0.002 (lighter for easier destruction)
+- Box friction: 0.5 (reduced for better toppling)
 - Ground friction: 0.8 (realistic rolling)
+
+### Multi-Turn System
+- 3 projectiles per level
+- Automatic spawning after projectile settles
+- Settlement detection: speed < 0.5 and angular velocity < 0.01
+- Old projectile removed from physics world before spawning new one
+- Game state tracks remaining turns
 
 ### Dog Type Balance
 - **Standard**: Baseline for comparison, reliable
