@@ -37,9 +37,9 @@ export class PhysicsEngine {
 
   createProjectile(x: number, y: number, radius: number) {
     const projectile = Matter.Bodies.circle(x, y, radius, {
-      density: 0.004,
-      friction: 0.01,
-      restitution: 0.5,
+      density: 0.01,
+      friction: 0.3,
+      restitution: 0.6,
       label: 'projectile',
       render: {
         fillStyle: '#8B4513'
@@ -52,9 +52,9 @@ export class PhysicsEngine {
   createBox(x: number, y: number, width: number, height: number, isStatic = false) {
     const box = Matter.Bodies.rectangle(x, y, width, height, {
       isStatic,
-      density: 0.001,
-      friction: 0.8,
-      restitution: 0.3,
+      density: 0.002,
+      friction: 0.5,
+      restitution: 0.4,
       label: isStatic ? 'structure' : 'box',
       render: {
         fillStyle: isStatic ? '#90EE90' : '#A0D890'
