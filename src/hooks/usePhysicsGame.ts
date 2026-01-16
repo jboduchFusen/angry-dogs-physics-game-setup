@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Matter from 'matter-js';
 import { PhysicsEngine } from '@/lib/physics/PhysicsEngine';
+import { calculateTrajectory, drawTrajectory, calculateLaunchVelocity } from '@/lib/effects/TrajectoryPreview';
 
 export interface GameState {
   isLaunched: boolean;
@@ -195,6 +196,30 @@ export function usePhysicsGame(canvasRef: React.RefObject<HTMLCanvasElement>) {
       ctx.lineTo(projectileRef.current.position.x, projectileRef.current.position.y);
       ctx.lineTo(slingshotPosition.x + 20, canvas.height - 180);
       ctx.stroke();
+
+      // Draw trajectory preview
+      const forceMagnitude = 0.015;
+      const velocity = calculateLaunchVelocity(
+        slingshotPosition.x,
+        slingshotPosition.y,
+        projectileRef.current.position.x,
+        projectileRef.current.position.y,
+        forceMagnitude
+      );
+
+      const trajectoryPoints = calculateTrajectory(
+        projectileRef.current.position.x,
+        projectileRef.current.position.y,
+        velocity.vx,
+        velocity.vy,
+        {
+          gravity: 1.0, // Match physics engine gravity
+          timeStep: 0.5,
+          maxPoints: 30
+        }
+      );
+
+      drawTrajectory(ctx, trajectoryPoints, 'rgba(255, 255, 255, 0.7)', 3, 2);
     }
   };
 

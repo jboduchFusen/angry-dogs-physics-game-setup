@@ -124,7 +124,22 @@
 **Files Modified:**
 - src/hooks/usePhysicsGame.ts (added settlement detection and auto-spawn logic)
 
-### 🔄 Task 3: Dog Types & Abilities System (IN PROGRESS)
+### ✅ Task 2.7: Trajectory Preview Line (Completed)
+**Execution:** Single-pass implementation
+
+- Created trajectory calculation utility
+- Implemented dotted arc preview during drag
+- Shows predicted path based on launch angle and force
+- Updates preview in real-time as user drags
+- Styled with semi-transparent white dotted line
+
+**Files Created:**
+- src/lib/effects/TrajectoryPreview.ts (trajectory calculation and rendering)
+
+**Files Modified:**
+- src/hooks/usePhysicsGame.ts (integrated trajectory preview)
+
+### 🔲 Task 3: Dog Types & Abilities System
 **Cost Estimate:** 600 LOC × 10 = 6,000 tokens
 **Execution:** Multi-pass (types → abilities → rendering → integration)
 
